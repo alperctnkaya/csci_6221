@@ -20,6 +20,12 @@ class SpotifyClient(val authToken: String ){
 
   object playlist {
 
+    def getUsersPlaylists(userId: String): Page[PlaylistSimple] = {
+      val request = PlaylistEndpoint.getUsersPlaylists(userId)
+      val response = Await.result(Http().singleRequest(request), 2.second)
+      Await.result(Unmarshal(response.entity).to[Page[PlaylistSimple]], 2.second)
+    }
+
     def getPlaylist(playlistId: String): Playlist ={
       val request = PlaylistEndpoint.getPlaylist(playlistId)
 

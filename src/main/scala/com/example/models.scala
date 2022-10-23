@@ -28,12 +28,12 @@ package com.example
                         )
 
   case class Followers(
-                        href: Option[Option[String]],
+                        href: Option[String],
                         total: Int
                       )
 
   case class PublicUser(
-                           display_name: Option[Option[String]],
+                           display_name: Option[String],
                            external_urls: Map[Option[String], Option[String]],
                            followers: Option[Followers],
                            href: Option[String],
@@ -60,7 +60,7 @@ package com.example
                              owner: PublicUser,
                              public: Option[Boolean],
                              snapshot_id: Option[String],
-                             tracks: Map[Option[String], Option[String]],
+                             //tracks: Map[Option[String], Option[String]],
                              `type`: Option[String],
                              uri: Option[String]
                            )
@@ -68,9 +68,9 @@ package com.example
                       href: Option[String],
                       items: List[T],
                       limit: Int,
-                      next: Option[Option[String]],
+                      next: Option[String],
                       offset: Int,
-                      previous: Option[Option[String]],
+                      previous: Option[String],
                       total: Int
                     )
 
@@ -110,7 +110,7 @@ package com.example
 
   case class AlbumSimple(
                           album_type: Option[String],
-                          available_markets: List[Option[String]],
+                          //available_markets: List[Option[String]],
                           external_urls: Map[Option[String], Option[String]],
                           href: Option[String],
                           id: Option[String],
@@ -139,7 +139,7 @@ package com.example
                     track_number: Int,
                     `type`: Option[String],
                     uri: Option[String],
-                    available_markets: List[Option[String]],
+                    //available_markets: List[Option[String]],
                   )
 
 

@@ -26,6 +26,11 @@ object PlaylistEndpoint extends SpotifyEndpoint{
   def getPlaylist(playlistId:String): HttpRequest ={
     createRequest(playlistEndpoint  + playlistId)
   }
+
+  def getUsersPlaylists(user_id: String): HttpRequest ={
+    createRequest(baseAPIUrl + "/v1/users/" + user_id + "/playlists")
+  }
+
 }
 
 object TracksEndpoint extends SpotifyEndpoint {
