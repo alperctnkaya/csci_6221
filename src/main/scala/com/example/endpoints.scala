@@ -45,7 +45,7 @@ object TracksEndpoint extends SpotifyEndpoint {
     createRequest(tracksEndpoint + "/audio-features/" + trackId)
 
   def getTracksAudioFeatures(tracksIds: List[String]): HttpRequest = {
-    val ids = tracksIds.mkString("%")
+    val ids = tracksIds.mkString(",")
     createRequest(tracksEndpoint + "/audio-features?ids=" + ids)
   }
 }
