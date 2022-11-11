@@ -3,7 +3,7 @@ package com.example
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Directives.{as, complete, concat, entity, get, path}
+import akka.http.scaladsl.server.Directives.{as, complete, concat, entity, get, post, path}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 import spotifyFormats._
 import scala.io.StdIn
@@ -13,13 +13,13 @@ class HttpServer {
     implicit val system = ActorSystem(Behaviors.empty, "system")
     implicit val executionContext = system.executionContext
 
-    val spotify = new SpotifyClient("BQA-fVYb540T9ZBXfC1Km8V0cHaoUO2GZemKKQkmp6mDuCGpcE67XbIVBQAnzCpyedrBJF45Eia4I0oKllVVn7Tn08gZQWN_-Qm7Lrhoy-IyUC-Kpe7qrqMZ2Q3VyIkjnKSLst9Dpynx5vVrY0FTTYdG4-JXVc6AMVaBCzygGWMa9Gmrxw")
+    val spotify = new SpotifyClient("BQD7uHScLsTP4rEtr_nS00HrGA0o7_JYar6CqAmN3LjquXj6N_fDP6Pkc_w1sf7zOLOvkQK4btaP3IU1gp3ALg76uWNkObQxm69OOwPQO8wX309jV2Dy9hUCFkO3oHJMZAvos1Fx98PgLS8alvH-lkaeqFiF069Kkio3Gkfs9XhqlnEfLA")
     val recommender = new trackRecommender()
 
     val route = concat (
       path("getUsersPlaylists") {
-        get {
-          println("GET getUsersPlaylists")
+        post {
+          println("POST getUsersPlaylists")
 
           entity(as[HttpServerModels.userName]) { body =>
             println(body.username)
@@ -36,8 +36,8 @@ class HttpServer {
       ,
 
       path("getPlaylist") {
-        get {
-          println("GET getPlaylist")
+        post {
+          println("POST getPlaylist")
 
           entity(as[HttpServerModels.playlistID]) { body =>
 
@@ -61,8 +61,8 @@ class HttpServer {
       ,
 
       path("getRecommendations") {
-        get {
-          println("GET getRecommendations")
+        post {
+          println("POST getRecommendations")
 
           entity(as[HttpServerModels.recommendationRequest]) { body =>
 
@@ -81,10 +81,10 @@ class HttpServer {
 
               val recommendation = recommender.recommend(sourceTracksAudioFeatures, targetTracksAudioFeatures)
 
-              recommendation
-              //targetTracksAudioFeatures.audio_features.filter(item => recommendation.contains(item.id.get))
-              //playlistTarget.tracks.items.filter( item => recommendation.contains(item.track.get.id.get)).map( item => (item.track.get.external_urls(Option("spotify"))))
               //recommendation
+              //targetTracksAudioFeatures.audio_features.filter(item => recommendation.contains(item.id.get))
+              playlistTarget.tracks.items.filter( item => recommendation.contains(item.track.get.id.get))//.map( item => (item.track.get.external_urls(Option("spotify"))))
+
             }
           }
 
@@ -94,8 +94,8 @@ class HttpServer {
       ,
 
       path("getTrackAudioFeatures") {
-        get {
-          println("GET getTrackAudioFeatures")
+        post {
+          println("POST getTrackAudioFeatures")
 
           entity(as[HttpServerModels.userName]) { body =>
             println(body.username)
