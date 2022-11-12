@@ -1,7 +1,7 @@
 package com.example
 
 class trackRecommender {
-  var numTracksToBeRecommended = 2
+  var numTracksToBeRecommended = 5
 
   def recommend(sourcePlaylist: spotifyApiModels.listAudioFeatures, targetPlaylist: spotifyApiModels.listAudioFeatures) : List[String]= {
 
