@@ -41,8 +41,11 @@ object spotifyFormats extends DefaultJsonProtocol {
   implicit val trackLinkFormat = jsonFormat5(spotifyApiModels.TrackLink)
 
   implicit val trackFormat = jsonFormat18(spotifyApiModels.Track)
+  implicit val tracksFormat = jsonFormat1(spotifyApiModels.Tracks)
   implicit val listAudioFeaturesFormat = jsonFormat1(spotifyApiModels.listAudioFeatures)
   implicit val followersFormat = jsonFormat2(spotifyApiModels.Followers)
+  implicit val artistFormat = jsonFormat10(spotifyApiModels.Artist)
+  implicit val artistsFormat = jsonFormat1(spotifyApiModels.Artists)
   implicit val publicUserFormat = jsonFormat7(spotifyApiModels.PublicUser)
   implicit val playlistTrackFormat = jsonFormat4(spotifyApiModels.PlaylistTrack)
   implicit val playlistSimple = jsonFormat11(spotifyApiModels.PlaylistSimple)

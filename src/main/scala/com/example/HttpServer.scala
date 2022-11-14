@@ -5,13 +5,15 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives.{as, complete, concat, entity, get, options, path, post, respondWithHeaders}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
-import akka.http.scaladsl.model.HttpMethods.{OPTIONS, POST, PUT, GET, DELETE}
+import akka.http.scaladsl.model.HttpMethods.{DELETE, GET, OPTIONS, POST, PUT}
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import spotifyFormats._
 import akka.http.scaladsl.model.headers.{`Access-Control-Allow-Credentials`, `Access-Control-Allow-Headers`, `Access-Control-Allow-Methods`, `Access-Control-Allow-Origin`}
 import akka.http.scaladsl.server.{Directive0, Route}
 
+
 import scala.io.StdIn
+import scala.util.parsing.json.JSON.headOptionTailToFunList
 
 trait CORSHandler {
 
@@ -48,7 +50,7 @@ class HttpServer {
     implicit val system = ActorSystem(Behaviors.empty, "system")
     implicit val executionContext = system.executionContext
 
-    val spotify = new SpotifyClient("BQCZV1aAz71MSRgffklQe8rKeNRS5tNkJMqeTBODnZdUMENW1nKmhhWe7Jd5D0v3DjUY-CT4MYy_XipIfZtbijF9txZOOwc96A8eIWt9wZ-y9zrYukpgwse9NidqtSewiMNtVeHatK-biuVDjnkOiQ7t9L0xPwHAQYhvaS_J4_xRWQwmZA")
+    val spotify = new SpotifyClient("BQASvGNzgw0yRXljM9oTqyenQe6K_CxE7FPYT0mEffvfgZh2GqjI8Ll3xK6GWWklyBfVS4dYgFKVMesnLtdayyP_UneujC1l5J-4HfYqmjaHdXhO57nG1iex_9jIt9g-p8iJ8zaEVKAmgKGxMu3MAo6wLK3SxWfahDCVAO99_dzRFMU_gw")
     val recommender = new trackRecommender()
 
     val route = concat (
@@ -63,9 +65,7 @@ class HttpServer {
                 val usersPlaylists = spotify.playlist.getUsersPlaylists(body.username)
                 usersPlaylists
               }
-
           }
-
           //complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
         }
       }
@@ -84,16 +84,13 @@ class HttpServer {
 
                 val playlist = spotify.playlist.getPlaylist(body.playlistID)
                 playlist.tracks.items.filter(item => item.track != None).foreach(item => t = item.track.get.id.get :: t)
-                var tracksAudioFeatures = spotify.track.getTracksAudioFeatures(t)
+                val tracksAudioFeatures = spotify.track.getTracksAudioFeatures(t)
                 val meanAudioFeatures = recommender.getMeanAudioFeatures(tracksAudioFeatures)
 
                 (playlist, meanAudioFeatures)
 
-
               }
-
           }
-
         }
       }
 
@@ -109,25 +106,28 @@ class HttpServer {
                 var tSource = List[String]()
                 var tTarget = List[String]()
 
+
                 val playlistSource = spotify.playlist.getPlaylist(body.sPlaylistID)
 
-                playlistSource.tracks.items.filter(item => item.track != None).foreach(item => tSource = item.track.get.id.get :: tSource)
+                playlistSource.tracks.items.filter(item => item.track != None).foreach(item =>  tSource = item.track.get.id.get :: tSource)
                 val sourceTracksAudioFeatures = spotify.track.getTracksAudioFeatures(tSource)
 
                 val playlistTarget = spotify.playlist.getPlaylist(body.tPlaylistID)
-                playlistTarget.tracks.items.filter(item => item.track != None).foreach(item => tTarget = item.track.get.id.get :: tTarget)
+                playlistTarget.tracks.items.filter(item => item.track != None).foreach(item =>   tTarget = item.track.get.id.get :: tTarget)
                 val targetTracksAudioFeatures = spotify.track.getTracksAudioFeatures(tTarget)
 
                 val recommendation = recommender.recommend(sourceTracksAudioFeatures, targetTracksAudioFeatures)
+                val recommendAudioFeatures = spotify.track.getTracksAudioFeatures(recommendation)
+                val meanRecommendAudioFeatures = recommender.getMeanAudioFeatures(recommendAudioFeatures)
 
                 //recommendation
                 //targetTracksAudioFeatures.audio_features.filter(item => recommendation.contains(item.id.get))
-                playlistTarget.tracks.items.filter(item => recommendation.contains(item.track.get.id.get)) //.map( item => (item.track.get.external_urls(Option("spotify"))))
+
+                (playlistTarget.tracks.items.filter(item => recommendation.contains(item.track.get.id.get)) , //.map( item => (item.track.get.external_urls(Option("spotify"))))
+                meanRecommendAudioFeatures)
 
               }
-
           }
-
         }
       }
 
@@ -144,9 +144,58 @@ class HttpServer {
                 val trackAudioFeatures = spotify.track.getTrackAudioFeatures(body.username)
                 trackAudioFeatures
               }
-
           }
+        }
+      }
 
+      ,
+
+      path("getRecommendationsSpotify") {
+        post {
+          println("POST getRecommendationsSpotify")
+
+          entity(as[HttpServerModels.playlistID]) { body =>
+            println(body.playlistID)
+
+            complete {
+              var artistIDs = List[String]()
+              var genres = List[String]()
+              var trackIDs = List[String]()
+              var selectedTrackIDs = List[String]()
+              var recommendationIDs = List[String]()
+
+              val playlistSource = spotify.playlist.getPlaylist(body.playlistID)
+
+              playlistSource.tracks.items.filter(item => item.track != None).foreach(item => artistIDs = item.track.get.artists.head.id.get :: artistIDs)
+              playlistSource.tracks.items.filter(item => item.track != None).foreach(item =>  trackIDs = item.track.get.id.get :: trackIDs)
+
+              artistIDs = artistIDs.take(50) // 50 is the limit for the API
+              val artists = spotify.artist.getArtists(artistIDs)
+
+              artists.artists.filter(item => item.genres.size != 0).foreach(item => genres = item.genres.head :: genres)
+
+              genres = genres.groupBy(identity).mapValues(_.length).toSeq.sortBy(_._2).reverse.map(item => item._1).toList
+              artistIDs = artistIDs.groupBy(identity).mapValues(_.length).toSeq.sortBy(_._2).reverse.map(item => item._1).toList
+
+
+              playlistSource.tracks.items.filter(item => item.track != None).filter(item => artistIDs.contains(item.track.get.artists.head.id.get))
+                .map( item => selectedTrackIDs = item.track.get.id.get :: selectedTrackIDs)
+
+              genres = genres.take(2)
+              artistIDs = artistIDs.take(2)
+              selectedTrackIDs = selectedTrackIDs.distinct.take(1)
+
+              val recommendations = spotify.browse.getRecommendations(artistIDs,genres,selectedTrackIDs)
+              recommendations.tracks.foreach(item => recommendationIDs = item.id.get::recommendationIDs)
+
+              val recommendAudioFeatures = spotify.track.getTracksAudioFeatures(recommendationIDs)
+              val meanRecommendAudioFeatures = recommender.getMeanAudioFeatures(recommendAudioFeatures)
+
+
+              (recommendations, meanRecommendAudioFeatures)
+              //(genres,artistIDs, selectedTrackIDs)
+            }
+          }
         }
       }
 

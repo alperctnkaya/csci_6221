@@ -2,6 +2,7 @@ package com.example
 
 import akka.http.scaladsl.model.headers.{Authorization, OAuth2BearerToken, `Set-Cookie`}
 import akka.http.scaladsl.model._
+import com.example.spotifyApiModels.AudioFeatures
 
 
 abstract class SpotifyEndpoint {
@@ -20,32 +21,52 @@ abstract class SpotifyEndpoint {
 
 }
 
-object PlaylistEndpoint extends SpotifyEndpoint{
-  private val playlistEndpoint = baseAPIUrl + "/v1/playlists/"
+  object PlaylistEndpoint extends SpotifyEndpoint{
+    private val playlistEndpoint = baseAPIUrl + "/v1/playlists/"
 
-  def getPlaylist(playlistId:String): HttpRequest ={
-    createRequest(playlistEndpoint  + playlistId)
+    def getPlaylist(playlistID:String): HttpRequest ={
+      createRequest(playlistEndpoint  + playlistID)
+    }
+
+    def getUsersPlaylists(userID: String): HttpRequest ={
+      createRequest(baseAPIUrl + "/v1/users/" + userID + "/playlists")
+    }
+
   }
 
-  def getUsersPlaylists(user_id: String): HttpRequest ={
-    createRequest(baseAPIUrl + "/v1/users/" + user_id + "/playlists")
-  }
+  object TracksEndpoint extends SpotifyEndpoint {
 
-}
+    private val tracksEndpoint = baseAPIUrl + "/v1"
 
-object TracksEndpoint extends SpotifyEndpoint {
+    def getTrack(trackId: String): HttpRequest ={
+      createRequest(tracksEndpoint + "/tracks/" + trackId)
+    }
 
-  private val tracksEndpoint = baseAPIUrl + "/v1"
+    def getTrackAudioFeatures(trackId: String): HttpRequest =
+      createRequest(tracksEndpoint + "/audio-features/" + trackId)
 
-  def getTrack(trackId: String): HttpRequest ={
-    createRequest(tracksEndpoint + "/tracks/" + trackId)
-  }
+    def getTracksAudioFeatures(tracksIds: List[String]): HttpRequest = {
+      val ids = tracksIds.mkString(",")
+      createRequest(tracksEndpoint + "/audio-features?ids=" + ids)
+    }
 
-  def getTrackAudioFeatures(trackId: String): HttpRequest =
-    createRequest(tracksEndpoint + "/audio-features/" + trackId)
+    def getArtist(artistID: String): HttpRequest = {
+      createRequest(baseAPIUrl + "/v1/artists/" + artistID)
+    }
 
-  def getTracksAudioFeatures(tracksIds: List[String]): HttpRequest = {
-    val ids = tracksIds.mkString(",")
-    createRequest(tracksEndpoint + "/audio-features?ids=" + ids)
-  }
+    def getArtists(artistsIDs: List[String]): HttpRequest = {
+      val ids= artistsIDs.mkString(",")
+      createRequest(baseAPIUrl + "/v1/artists?ids=" + ids)
+    }
+
+    def getRecommendations(seedArtists: List[String], seedGenres: List[String], seedTracks: List[String]): HttpRequest ={
+
+      val seed_artists = "seed_artists=" + seedArtists.mkString(",")
+      var seed_genres = "seed_genres=" + seedGenres.mkString(",")
+      val seed_tracks = "seed_tracks=" + seedTracks.mkString(",")
+
+      seed_genres = seed_genres.replace(" ", "%20")
+
+      createRequest(tracksEndpoint + "/recommendations?limit=10" + "&" + seed_artists + "&" + seed_genres + "&" + seed_tracks)
+    }
 }

@@ -110,6 +110,22 @@ package com.example
                           `type`: Option[String],
                           uri: Option[String]
                         )
+  case class Artists(
+                      artists: List[Artist]
+                    )
+
+  case class Artist(
+                     external_urls: Map[String, String],
+                     followers: Followers,
+                     genres: List[String],
+                     href: String,
+                     id: String,
+                     images: List[Image],
+                     name: String,
+                     popularity: Int,
+                     `type`: String,
+                     uri: String
+                   )
 
     case class ArtistSimple(
                              external_urls: Map[Option[String], Option[String]],
@@ -131,6 +147,10 @@ package com.example
                             `type`: Option[String],
                             uri: Option[String]
                           )
+
+    case class Tracks(
+                       tracks: List[Track]
+                     )
 
     case class Track(
                       album: Option[AlbumSimple],

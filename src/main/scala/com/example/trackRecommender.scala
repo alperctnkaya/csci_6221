@@ -5,7 +5,6 @@ class trackRecommender {
 
   def recommend(sourcePlaylist: spotifyApiModels.listAudioFeatures, targetPlaylist: spotifyApiModels.listAudioFeatures) : List[String]= {
 
-    var recommendations = List[String]()
     val meanAudioFeatures = getMeanAudioFeatures(sourcePlaylist)
     findClosestTracks(meanAudioFeatures, targetPlaylist, numTracksToBeRecommended)
 
