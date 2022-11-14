@@ -50,7 +50,7 @@ class HttpServer {
     implicit val system = ActorSystem(Behaviors.empty, "system")
     implicit val executionContext = system.executionContext
 
-    val spotify = new SpotifyClient("BQASvGNzgw0yRXljM9oTqyenQe6K_CxE7FPYT0mEffvfgZh2GqjI8Ll3xK6GWWklyBfVS4dYgFKVMesnLtdayyP_UneujC1l5J-4HfYqmjaHdXhO57nG1iex_9jIt9g-p8iJ8zaEVKAmgKGxMu3MAo6wLK3SxWfahDCVAO99_dzRFMU_gw")
+    val spotify = new SpotifyClient("BQCHFsrWmYV7MdPj9th8mKAQ-p8xKK6y1ACFZpSl5hFEDYWs53vlLmL_35tNcUja-LT2wow7IxMoCZnk0Pjd4eFaphFqGK9LGjs3nciNRMAjOubFI5QvIoNwhH6sWI7jWzydLmyizYq_vzsSxxGHAwu16ISC2ZdnuBTeUT9U0pK772MjTQ")
     val recommender = new trackRecommender()
 
     val route = concat (
@@ -123,7 +123,9 @@ class HttpServer {
                 //recommendation
                 //targetTracksAudioFeatures.audio_features.filter(item => recommendation.contains(item.id.get))
 
-                (playlistTarget.tracks.items.filter(item => recommendation.contains(item.track.get.id.get)) , //.map( item => (item.track.get.external_urls(Option("spotify"))))
+                //(playlistTarget.tracks.items.filter(item => recommendation.contains(item.track.get.id.get)) , //.map( item => (item.track.get.external_urls(Option("spotify"))))
+
+                (Map("tracks" -> playlistTarget.tracks.items.filter(item => recommendation.contains(item.track.get.id.get)).map(item => item.track)),
                 meanRecommendAudioFeatures)
 
               }
