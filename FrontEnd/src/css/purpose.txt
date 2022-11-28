@@ -1,0 +1,1 @@
+This folder consits of all the css done in our application.
