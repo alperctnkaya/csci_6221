@@ -1,7 +1,6 @@
 package com.example
 
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives.{as, complete, concat, entity, get, options, path, post, respondWithHeaders}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
@@ -11,9 +10,6 @@ import spotifyFormats._
 import akka.http.scaladsl.model.headers.{`Access-Control-Allow-Credentials`, `Access-Control-Allow-Headers`, `Access-Control-Allow-Methods`, `Access-Control-Allow-Origin`}
 import akka.http.scaladsl.server.{Directive0, Route}
 
-
-import scala.io.StdIn
-import scala.util.parsing.json.JSON.headOptionTailToFunList
 
 trait CORSHandler {
 
@@ -47,10 +43,9 @@ trait CORSHandler {
 
 class HttpServer {
   def start(): Unit = {
-    implicit val system = ActorSystem(Behaviors.empty, "system")
-    implicit val executionContext = system.executionContext
+    implicit val system = ActorSystem("Server")
 
-    val spotify = new SpotifyClient("BQDIE4gCyNOmuRTgjS0yCessbIQq3FrFisvG-n40U1_cTAhgG7p2yY_Gr7SWIb0wakqLnwXvwrafsreH7oUZsmITsgr4P1fEC09oDJpWxVUNS_ZbpYmROVvKRG-uGKAwbpV7Z2ArWp84bCkdcG4nZpp3XW18aVgX9uJe3lrKKhjK8IsEbw")
+    val spotify = new SpotifyClient("BQAl8j1oVu17JDmB_pIaEtZ9Oxhteu6hnjKocEYckojoS1QYZKGD7FmWwsfSUAgBSvE3lxyRJ0K8-yBjv-qAiCc0Bjpq-DHEAlqNLl5_XzyWIUpa8Jogacv6FAru_fzUm7jW76y1_kEknTiBb2uAGSLHAPI83jHXDkAoDFjBFiLCbm1iqw")
     val recommender = new trackRecommender()
 
     val route = concat (
@@ -206,14 +201,9 @@ class HttpServer {
 
     val host = "0.0.0.0"
     val port: Int = sys.env.getOrElse("PORT", "8080").toInt
-    val bindingFuture = Http().bindAndHandle(route, host, port)
-    //val bindingFuture = Http().newServerAt("0.0.0.0", port).bind(cors.corsHandler(route))
-    println(port)
-    println(s"Server now online. \nPress RETURN to stop...")
-    StdIn.readLine()
 
-    bindingFuture
-      .flatMap(_.unbind()) // trigger unbinding from the port
-      .onComplete(_ => system.terminate()) // and shutdown when done
+    Http().bindAndHandle(route, host, port)
+    println(s"Server now online.  \nPress RETURN to stop...")
+
   }
 }
