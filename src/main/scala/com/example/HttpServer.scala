@@ -207,7 +207,7 @@ class HttpServer {
 
     val port: Int = sys.env.getOrElse("PORT", "8080").toInt
     
-    val bindingFuture = Http().newServerAt("localhost", port).bind(cors.corsHandler(route))
+    val bindingFuture = Http().newServerAt("0.0.0.0", port).bind(cors.corsHandler(route))
     println(s"Server now online. \nPress RETURN to stop...")
     StdIn.readLine()
 
