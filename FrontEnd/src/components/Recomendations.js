@@ -162,7 +162,7 @@ function Recomendations ({ clearData, data, sourcePlaylist, targetPlaylist }) {
             style={{ width: '50px', height: '50px' }}
             alt=''
           />
-          <h1 className='spotify_title'> Spotify </h1>
+          <h1 className='spotify_title'> Spotify Recomendations</h1>
         </div>
         <div className='row previous_page' onClick={clearData}>
           <MdArrowBack style={{ width: '50px', height: '30px' }} /> Previous

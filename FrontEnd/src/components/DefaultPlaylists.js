@@ -5543,7 +5543,7 @@ function DefaultPlaylists ({playlistsData, tracks, handlePlaylistID, recommendSo
             fontSize: '25px'
           }}
         >
-            {!tracks &&  <strong>Select a Playlist</strong>}
+            {!tracks &&  <strong>{index === '1' ? 'Select Your Preferred Playlist' : 'Select Your Target Playlist'}</strong>}
             {tracks &&  <strong>Playlist Songs</strong>}
         </div>
         <div>
