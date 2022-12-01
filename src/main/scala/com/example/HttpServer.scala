@@ -45,7 +45,7 @@ class HttpServer {
   def start(): Unit = {
     implicit val system = ActorSystem("Server")
 
-    val spotify = new SpotifyClient("BQCemD1weS18EYD2__5EfaijSVTkWJx3OVE06flSWc20DLeQ3bDxYqVLoHqfFVrfGlFajl1dBEAEBzdzOjRgjQu18kM2bsihzQh51pBE-rBIDNG0jkEX6YXTBVEGW1oKoznIYCxOJWpVR-dAvcsZv1CALsDZUI1dRio0iSSpwftZqy5G5g")
+    val spotify = new SpotifyClient("BQBbYgSFJVYokD58H8zRpj9-ZRgEw-VV4bYPUXwVCUplKEc9LZ_b0rp27zFDOSavmlQBdPqKvLaTYIFdKXjrDQljzUbCzTkiODln7-I44jdmJb59XUUqn61BLprFLCqyjr1m0cgw22PIG-AiZbZ1ndy2ZG2oqbgpTMIVCZ63wCDSHXRwxg")
     val recommender = new trackRecommender()
 
     val route = concat (
